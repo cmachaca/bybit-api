@@ -68,8 +68,8 @@ export default abstract class BaseRestClient {
     return this._call('GET', endpoint, params, false);
   }
 
-  postPrivate(endpoint: string, params?: any): GenericAPIResponse {
-    return this._call('POST', endpoint, params, false);
+  postPrivate(endpoint: string, params?: any, useUrlParams?: boolean): GenericAPIResponse {
+    return this._call('POST', endpoint, params, false, useUrlParams);
   }
 
   deletePrivate(endpoint: string, params?: any): GenericAPIResponse {
@@ -79,7 +79,7 @@ export default abstract class BaseRestClient {
   /**
    * @private Make a HTTP request to a specific endpoint. Private endpoints are automatically signed.
    */
-  private async _call(method: Method, endpoint: string, params?: any, isPublicApi?: boolean): GenericAPIResponse {
+  private async _call(method: Method, endpoint: string, params?: any, isPublicApi?: boolean, useUrlParams?: boolean): GenericAPIResponse {
     if (!isPublicApi) {
       if (!this.key || !this.secret) {
         throw new Error('Private endpoints require api and private keys set');
@@ -99,7 +99,7 @@ export default abstract class BaseRestClient {
       json: true
     };
 
-    if (method === 'GET') {
+    if (method === 'GET' || useUrlParams) {
       options.params = params;
     } else {
       options.data = params;

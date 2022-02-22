@@ -1,8 +1,16 @@
 import { AxiosRequestConfig } from 'axios';
 import { KlineInterval } from './types/shared';
-import { NewSpotOrder, OrderSide, OrderTypeSpot, SpotOrderQueryById } from './types/spot';
+import {
+  NewSpotOrder,
+  OrderSide,
+  OrderTypeSpot,
+  SpotOrderQueryById,
+} from './types/spot';
 import BaseRestClient from './util/BaseRestClient';
-import { GenericAPIResponse, getRestBaseUrl, RestClientOptions } from './util/requestUtils';
+import {
+  getRestBaseUrl,
+  RestClientOptions,
+} from './util/requestUtils';
 import RequestWrapper from './util/requestWrapper';
 
 export class SpotClient extends BaseRestClient {
@@ -24,7 +32,13 @@ export class SpotClient extends BaseRestClient {
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {}
   ) {
-    super(key, secret, getRestBaseUrl(useLivenet, restClientOptions), restClientOptions, requestOptions);
+    super(
+      key,
+      secret,
+      getRestBaseUrl(useLivenet, restClientOptions),
+      restClientOptions,
+      requestOptions
+    );
 
     // this.requestWrapper = new RequestWrapper(
     //   key,
@@ -45,7 +59,7 @@ export class SpotClient extends BaseRestClient {
    *
    * Market Data Endpoints
    *
-  **/
+   **/
 
   getSymbols() {
     return this.get('/spot/v1/symbols');
@@ -53,7 +67,8 @@ export class SpotClient extends BaseRestClient {
 
   getOrderBook(symbol: string, limit?: number) {
     return this.get('/spot/quote/v1/depth', {
-      symbol, limit
+      symbol,
+      limit,
     });
   }
 
@@ -72,7 +87,13 @@ export class SpotClient extends BaseRestClient {
     });
   }
 
-  getCandles(symbol: string, interval: KlineInterval, limit?: number, startTime?: number, endTime?: number) {
+  getCandles(
+    symbol: string,
+    interval: KlineInterval,
+    limit?: number,
+    startTime?: number,
+    endTime?: number
+  ) {
     return this.get('/spot/quote/v1/kline', {
       symbol,
       interval,
@@ -99,7 +120,7 @@ export class SpotClient extends BaseRestClient {
    */
 
   submitOrder(params: NewSpotOrder) {
-    return this.postPrivate('/spot/v1/order', params);
+    return this.postPrivate('/spot/v1/order', params, true);
   }
 
   getOrder(params: SpotOrderQueryById) {
@@ -113,9 +134,11 @@ export class SpotClient extends BaseRestClient {
   cancelOrderBatch(params: {
     symbol: string;
     side?: OrderSide;
-    orderTypes: OrderTypeSpot[]
+    orderTypes: OrderTypeSpot[];
   }) {
-    const orderTypes = params.orderTypes ? params.orderTypes.join(',') : undefined;
+    const orderTypes = params.orderTypes
+      ? params.orderTypes.join(',')
+      : undefined;
     return this.deletePrivate('/spot/order/batch-cancel', {
       ...params,
       orderTypes,
@@ -124,9 +147,9 @@ export class SpotClient extends BaseRestClient {
 
   getOpenOrders(symbol?: string, orderId?: string, limit?: number) {
     return this.getPrivate('/spot/v1/open-orders', {
-      symbol,
-      orderId,
-      limit,
+      ...(symbol ? { symbol } : {}),
+      ...(orderId ? { orderId } : {}),
+      ...(limit ? { limit } : {}),
     });
   }
 
